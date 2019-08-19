@@ -34,6 +34,7 @@ class MySQLDatabase{
     $this->_real_escape_string_exists = function_exists("mysqli_real_escape_string");
   }
   public function dbName(){ return self::$_db_name; }
+  public function dbUser(){ return self::$_db_user; }
   // open Database connection using given params
   public function openConnection(){
     $this->_connection = !empty(self::$_db_name) ?
@@ -56,6 +57,8 @@ class MySQLDatabase{
     if(isset($this->_connection)){
       $this->_connection->close();
       unset($this->_connection);
+      if (isset(self::$_db_name)) unset(self::$_db_name);
+      if (isset(self::$_db_user)) unset(self::$_db_user);
     }
   }
   public function query(string $sql){
@@ -63,7 +66,6 @@ class MySQLDatabase{
 		$result = $this->_connection->query($sql);
 		return $this->confirmQuery($result) ? $result : false;
   }
-  public function getDBname(){ return self::$_db_name; }
 	public function changeDB(string $db_name){
 		if( $db_name && $db_name !== self::$_db_name ){
 			if( !$this->_connection->select_db($db_name) ){
