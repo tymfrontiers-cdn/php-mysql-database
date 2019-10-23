@@ -76,7 +76,6 @@ class MySQLDatabase{
   public function useResult () { return $this->_connection->use_result; }
   public function nextResult () { return $this->_connection->next_result; }
   public function moreResults () { return $this->_connection->more_results; }
-  public function getDBname(){ return self::$_db_name; }
 	public function changeDB(string $db_name){
 		if( $db_name && $db_name !== self::$_db_name ){
 			if( !$this->_connection->select_db($db_name) ){
