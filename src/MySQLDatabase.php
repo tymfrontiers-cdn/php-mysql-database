@@ -41,7 +41,7 @@ class MySQLDatabase{
       $this->errors['openConnection'][] =[0,256,"Failed to connect to database.",__FILE__,__LINE__];
       // error for admin only
       $err_arr = \error_get_last();
-      $this->errors['openConnection'][] = [3,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
+      $this->errors['openConnection'][] = [7,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
       return false;
     }else{
       if( isset($this->errors['openConnection']) ) { unset($this->errors['openConnection']); }
@@ -66,7 +66,7 @@ class MySQLDatabase{
       return true;
     }
     $this->errors["multiQuery"][] = [0,256, "Multi-Query failed!",__FILE__,__LINE__];
-    if ($this->_connection->errno) $this->errors["multiQuery"][] = [2,256, $this->_connection->error,__FILE__,__LINE__];
+    if ($this->_connection->errno) $this->errors["multiQuery"][] = [7,256, $this->_connection->error,__FILE__,__LINE__];
 		return false;
   }
   public function useResult () { return $this->_connection->use_result; }
@@ -76,7 +76,7 @@ class MySQLDatabase{
 		if( $db_name && $db_name !== self::$_db_name ){
 			if( !$this->_connection->select_db($db_name) ){
         $err_arr = \error_get_last();
-        if($err_arr)  $this->errors['changeDB'][] = [3,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
+        if($err_arr)  $this->errors['changeDB'][] = [7,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
         return false;
       }else{ return true; }
 		}
@@ -99,8 +99,8 @@ class MySQLDatabase{
       // error everyone can see
       $this->errors['query'][] =[0,256,"Database query failed.",__FILE__,__LINE__];
       // error for admin only
-      $this->errors['query'][] =[4,256,"Error: {$this->_connection->error}",__FILE__,__LINE__];
-      $this->errors['query'][] =[4,256,"Last query: {$this->last_query} ",__FILE__,__LINE__];
+      $this->errors['query'][] =[7,256,"Error: {$this->_connection->error}",__FILE__,__LINE__];
+      $this->errors['query'][] =[7,256,"Last query: {$this->last_query} ",__FILE__,__LINE__];
       return false;
     }else{
       if( isset($this->errors['query']) ){ unset($this->errors['query']); }
