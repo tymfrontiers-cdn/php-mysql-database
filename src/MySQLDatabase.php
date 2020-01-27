@@ -29,7 +29,7 @@ class MySQLDatabase{
     self::$_db_name   = $this->escapeValue($db_name);
     $this->openConnection();
   }
-  public function dbName(){ return self::$_db_name; }
+  public function dbName() { return self::$_db_name; } // deprecated
   // open Database connection using given params
   public function openConnection(){
     $this->_connection = !empty(self::$_db_name) ?
@@ -93,32 +93,36 @@ class MySQLDatabase{
 		return $value;
   }
 
-    // Database-neutral methods
-    public function confirmQuery($result){
-			if(!$result){
-				// error everyone can see
-				$this->errors['query'][] =[0,256,"Database query failed.",__FILE__,__LINE__];
-				// error for admin only
-				$this->errors['query'][] =[4,256,"Error: {$this->_connection->error}",__FILE__,__LINE__];
-				$this->errors['query'][] =[4,256,"Last query: {$this->last_query} ",__FILE__,__LINE__];
-				return false;
-			}else{
-				if( isset($this->errors['query']) ){ unset($this->errors['query']); }
-				return true;
-			}
-    }
-    public function numRows($result_set){
-      if( $result_set ){
-        try {
-          $row = $result_set->num_rows;
-          return $row;
-        } catch (\Exception $e) {
-          $this->errors["numRows"][] = [4,256,$e->getMessage(),__FILE__,__LINE__];
-        }
-      }
-
+  // Database-neutral methods
+  public function confirmQuery($result){
+    if(!$result){
+      // error everyone can see
+      $this->errors['query'][] =[0,256,"Database query failed.",__FILE__,__LINE__];
+      // error for admin only
+      $this->errors['query'][] =[4,256,"Error: {$this->_connection->error}",__FILE__,__LINE__];
+      $this->errors['query'][] =[4,256,"Last query: {$this->last_query} ",__FILE__,__LINE__];
       return false;
+    }else{
+      if( isset($this->errors['query']) ){ unset($this->errors['query']); }
+      return true;
     }
-    public function insertId(){ return $this->_connection->insert_id; }
-    public function affectedRows(){ return $this->_connection->affected_rows; }
+  }
+  public function numRows($result_set){
+    if( $result_set ){
+      try {
+        $row = $result_set->num_rows;
+        return $row;
+      } catch (\Exception $e) {
+        $this->errors["numRows"][] = [4,256,$e->getMessage(),__FILE__,__LINE__];
+      }
+    }
+
+    return false;
+  }
+  public function insertId(){ return $this->_connection->insert_id; }
+  public function affectedRows(){ return $this->_connection->affected_rows; }
+  public function getDatabase() { return self::$_db_name; }
+  public function getServer() { return self::$_db_server; }
+  public function getUser() { return self::$_db_user; }
+
 }
