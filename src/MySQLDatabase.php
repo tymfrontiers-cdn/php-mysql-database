@@ -86,7 +86,7 @@ class MySQLDatabase{
 	public function fetchAssocArray($result_set){ return $result_set->fetch_assoc(); }
 	public function fetchAll($result_set){ return $result_set->fetch_all(); }
 
-  public function escapeValue($value){
+  public function escapeValue(string $value){
     $value = $this->_connection
       ? \mysqli_real_escape_string($this->_connection,$value)
       : \addslashes($value);
