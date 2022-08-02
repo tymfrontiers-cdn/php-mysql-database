@@ -78,7 +78,10 @@ class MySQLDatabase{
         $err_arr = \error_get_last();
         if($err_arr)  $this->errors['changeDB'][] = [7,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
         return false;
-      }else{ return true; }
+      }else{ 
+        self::$_db_name = $db_name;
+        return true; 
+      }
 		}
     return false;
 	}
