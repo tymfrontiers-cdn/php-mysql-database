@@ -8,7 +8,7 @@ class MySQLDatabase{
   private    static    $_db_name;
   private        			 $_connection;
 
-  public  						 $last_query;
+  private  						 $_last_query;
   public 							 $errors = [];
   # How error is pushed to this array..
   # key => [ // key can be method name/instannce where error occured
@@ -55,12 +55,12 @@ class MySQLDatabase{
     }
   }
   public function query(string $sql){
-    $this->last_query = $sql;
+    $this->_last_query = $sql;
 		$result = $this->_connection->query($sql);
 		return $this->confirmQuery($result) ? $result : false;
   }
   public function multiQuery(string $sql){
-    $this->last_query = $sql;
+    $this->_last_query = $sql;
 		$result = $this->_connection->multi_query($sql);
     if ($result) {
       return true;
@@ -103,7 +103,7 @@ class MySQLDatabase{
       $this->errors['query'][] =[0,256,"Database query failed.",__FILE__,__LINE__];
       // error for admin only
       $this->errors['query'][] =[7,256,"Error: {$this->_connection->error}",__FILE__,__LINE__];
-      $this->errors['query'][] =[7,256,"Last query: {$this->last_query} ",__FILE__,__LINE__];
+      $this->errors['query'][] =[7,256,"Last query: {$this->_last_query} ",__FILE__,__LINE__];
       return false;
     }else{
       if( isset($this->errors['query']) ){ unset($this->errors['query']); }
@@ -127,5 +127,6 @@ class MySQLDatabase{
   public function getDatabase() { return self::$_db_name; }
   public function getServer() { return self::$_db_server; }
   public function getUser() { return self::$_db_user; }
+  public function lastQuery () { return $this->_last_query; }
 
 }
