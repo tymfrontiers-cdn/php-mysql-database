@@ -56,8 +56,13 @@ class MySQLDatabase{
   }
   public function query(string $sql){
     $this->_last_query = $sql;
-		$result = $this->_connection->query($sql);
-		return $this->confirmQuery($result) ? $result : false;
+    $result = false;
+    try {
+      $result = $this->_connection->query($sql);
+    } catch (\Throwable $th) {
+      $this->errors['query'][] = [7, 256, $th->getMessage(), __FILE__, __LINE__];
+    }
+		return ($result && $this->confirmQuery($result)) ? $result : false;
   }
   public function multiQuery(string $sql){
     $this->_last_query = $sql;
