@@ -2,14 +2,14 @@
 namespace TymFrontiers;
 
 class MySQLDatabase{
-  private    static    $_db_server;
-  private    static    $_db_user;
-  private    static    $_db_pass;
-  private    static    $_db_name;
-  private        			 $_connection;
+  private  $_db_server;
+  private  $_db_user;
+  private  $_db_pass;
+  private  $_db_name;
+  private  $_connection;
 
-  private  						 $_last_query;
-  public 							 $errors = [];
+  private  $_last_query;
+  public 	 $errors = [];
   # How error is pushed to this array..
   # key => [ // key can be method name/instannce where error occured
   #   [
@@ -21,20 +21,20 @@ class MySQLDatabase{
   #   ]
   # ]
 
-  function __construct(string $db_server,string $db_user,string $db_pass,string $db_name=''){
-    if( $this->_connection ) $this->closeConnection();
-    self::$_db_server = $this->escapeValue($db_server);
-    self::$_db_user   = $this->escapeValue($db_user);
-    self::$_db_pass   = $this->escapeValue($db_pass);
-    self::$_db_name   = $this->escapeValue($db_name);
+  function __construct(string $db_server,string $db_user,string $db_pass,string $db_name='', bool $new_conn = false){
+    if ( !$new_conn && $this->_connection ) $this->closeConnection();
+    $this->_db_server = $this->escapeValue($db_server);
+    $this->_db_user   = $this->escapeValue($db_user);
+    $this->_db_pass   = $this->escapeValue($db_pass);
+    $this->_db_name   = $this->escapeValue($db_name);
     $this->openConnection();
   }
-  public function dbName() { return self::$_db_name; } // deprecated
+  public function dbName() { return $this->_db_name; } // deprecated
   // open Database connection using given params
   public function openConnection(){
-    $this->_connection = !empty(self::$_db_name) ?
-      new \mysqli(self::$_db_server, self::$_db_user, self::$_db_pass, self::$_db_name) :
-      new \mysqli(self::$_db_server, self::$_db_user, self::$_db_pass);
+    $this->_connection = !empty($this->_db_name) ?
+      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, $this->_db_name) :
+      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass);
 
     if (\mysqli_connect_error()) {
       // error everyone can see
@@ -78,13 +78,13 @@ class MySQLDatabase{
   public function nextResult () { return $this->_connection->next_result; }
   public function moreResults () { return $this->_connection->more_results; }
 	public function changeDB(string $db_name){
-		if( $db_name && $db_name !== self::$_db_name ){
+		if( $db_name && $db_name !== $this->_db_name ){
 			if( !$this->_connection->select_db($db_name) ){
         $err_arr = \error_get_last();
         if($err_arr)  $this->errors['changeDB'][] = [7,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
         return false;
       }else{ 
-        self::$_db_name = $db_name;
+        $this->_db_name = $db_name;
         return true; 
       }
 		}
@@ -129,9 +129,8 @@ class MySQLDatabase{
   }
   public function insertId(){ return $this->_connection->insert_id; }
   public function affectedRows(){ return $this->_connection->affected_rows; }
-  public function getDatabase() { return self::$_db_name; }
-  public function getServer() { return self::$_db_server; }
-  public function getUser() { return self::$_db_user; }
+  public function getDatabase() { return $this->_db_name; }
+  public function getServer() { return $this->_db_server; }
+  public function getUser() { return $this->_db_user; }
   public function lastQuery () { return $this->_last_query; }
-
 }
