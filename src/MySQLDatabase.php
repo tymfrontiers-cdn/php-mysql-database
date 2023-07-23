@@ -133,4 +133,7 @@ class MySQLDatabase{
   public function getServer() { return $this->_db_server; }
   public function getUser() { return $this->_db_user; }
   public function lastQuery () { return $this->_last_query; }
+  public function checkConnection ():bool {
+    return $this->_connection && $this->_connection instanceof \mysqli;
+  }
 }
