@@ -3,6 +3,7 @@ namespace TymFrontiers;
 
 class MySQLDatabase{
   private  $_db_server;
+  private  $_db_server_port = "3306";
   private  $_db_user;
   private  $_db_pass;
   private  $_db_name;
@@ -21,20 +22,21 @@ class MySQLDatabase{
   #   ]
   # ]
 
-  function __construct(string $db_server,string $db_user,string $db_pass,string $db_name='', bool $new_conn = false){
+  function __construct(string $db_server,string $db_user,string $db_pass,string $db_name='', bool $new_conn = false, string|null $port = "3306"){
     if ( !$new_conn && $this->_connection ) $this->closeConnection();
     $this->_db_server = $this->escapeValue($db_server);
     $this->_db_user   = $this->escapeValue($db_user);
     $this->_db_pass   = $this->escapeValue($db_pass);
     $this->_db_name   = $this->escapeValue($db_name);
+    if (!empty($port)) $this->_db_server_port = $this->escapeValue($port);
     $this->openConnection();
   }
   public function dbName() { return $this->_db_name; } // deprecated
   // open Database connection using given params
   public function openConnection(){
     $this->_connection = !empty($this->_db_name) ?
-      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, $this->_db_name) :
-      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass);
+      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, $this->_db_name, $this->_db_server_port) :
+      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, null, $this->_db_server_port);
 
     if (\mysqli_connect_error()) {
       // error everyone can see
