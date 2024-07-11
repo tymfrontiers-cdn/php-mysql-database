@@ -34,21 +34,25 @@ class MySQLDatabase{
   public function dbName() { return $this->_db_name; } // deprecated
   // open Database connection using given params
   public function openConnection(){
-    $this->_connection = !empty($this->_db_name) ?
-      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, $this->_db_name, $this->_db_server_port) :
-      new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, null, $this->_db_server_port);
-
-    if (\mysqli_connect_error()) {
-      // error everyone can see
-      $this->errors['openConnection'][] =[0,256,"Failed to connect to database.",__FILE__,__LINE__];
-      // error for admin only
-      $err_arr = \error_get_last();
-      $this->errors['openConnection'][] = [7,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
-      return false;
-    }else{
-      if( isset($this->errors['openConnection']) ) { unset($this->errors['openConnection']); }
-      return true;
+    try {
+      $this->_connection = !empty($this->_db_name) ?
+        new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, $this->_db_name, $this->_db_server_port) :
+        new \mysqli($this->_db_server, $this->_db_user, $this->_db_pass, null, $this->_db_server_port);
+      if (\mysqli_connect_error()) {
+        // error everyone can see
+        $this->errors['openConnection'][] =[0,256,"Failed to connect to database.",__FILE__,__LINE__];
+        // error for admin only
+        $err_arr = \error_get_last();
+        $this->errors['openConnection'][] = [7,$err_arr['type'],$err_arr["message"],$err_arr['file'],$err_arr['line']];
+        return false;
+      }else{
+        if( isset($this->errors['openConnection']) ) { unset($this->errors['openConnection']); }
+        return true;
+      }
+    } catch (\Throwable $th) {
+      $this->errors['openConnection'][] = [7,256, "Db Connection Error: {$th->getMessage()}", __FILE__, __LINE__];
     }
+
   }
   public function closeConnection(){
     if(isset($this->_connection)){
@@ -68,9 +72,14 @@ class MySQLDatabase{
   }
   public function multiQuery(string $sql){
     $this->_last_query = $sql;
-		$result = $this->_connection->multi_query($sql);
-    if ($result) {
-      return true;
+    try {
+      $result = $this->_connection->multi_query($sql);
+      if ($result) {
+        return true;
+      }
+    } catch (\Throwable $th) {
+      //throw $th;
+      $this->errors["multiQuery"][] = [0,256, "Multi-Query Erroe: {$th->getMessage()}",__FILE__,__LINE__];
     }
     $this->errors["multiQuery"][] = [0,256, "Multi-Query failed!",__FILE__,__LINE__];
     if ($this->_connection->errno) $this->errors["multiQuery"][] = [7,256, $this->_connection->error,__FILE__,__LINE__];
