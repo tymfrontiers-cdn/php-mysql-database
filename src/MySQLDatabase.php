@@ -50,7 +50,7 @@ class MySQLDatabase{
         return true;
       }
     } catch (\Throwable $th) {
-      $this->errors['openConnection'][] = [7,256, "Db Connection Error: {$th->getMessage()}", __FILE__, __LINE__];
+      throw new \Exception("Db Connection Error: {$th->getMessage()}", 1);      
     }
 
   }
