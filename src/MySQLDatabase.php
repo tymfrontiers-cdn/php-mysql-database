@@ -50,7 +50,7 @@ class MySQLDatabase{
         return true;
       }
     } catch (\Throwable $th) {
-      throw new \Exception("Db Connection Error: {$th->getMessage()}", 1);      
+      $this->errors['openConnection'][] = [7,256, "Db Connection Error: {$th->getMessage()}", __FILE__, __LINE__];
     }
 
   }
@@ -61,6 +61,10 @@ class MySQLDatabase{
     }
   }
   public function query(string $sql){
+    if (!$this->checkConnection()) {
+      $this->errors['query'][] = [7, 256, "No active Database connection.", __FILE__, __LINE__];
+      return false;
+    }
     $this->_last_query = $sql;
     $result = false;
     try {
@@ -71,6 +75,10 @@ class MySQLDatabase{
 		return ($result && $this->confirmQuery($result)) ? $result : false;
   }
   public function multiQuery(string $sql){
+    if (!$this->checkConnection()) {
+      $this->errors['multiQuery'][] = [7, 256, "No active Database connection.", __FILE__, __LINE__];
+      return false;
+    }
     $this->_last_query = $sql;
     try {
       $result = $this->_connection->multi_query($sql);
