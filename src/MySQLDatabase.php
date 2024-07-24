@@ -155,4 +155,7 @@ class MySQLDatabase{
   public function checkConnection ():bool {
     return $this->_connection && $this->_connection instanceof \mysqli;
   }
+  public function connected ():bool {
+    return !empty($this->_connection);
+  }
 }
